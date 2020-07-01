@@ -2,16 +2,30 @@ package wdclib
 
 import (
 	"io"
+	"log"
 	"math/rand"
 
 	"github.com/amattn/deeperror"
 	"golang.org/x/net/websocket"
 )
 
+// the WebDriver spec calls browsers User Agents.
+type SupportedBrowser string
+
+const (
+	Unknown SupportedBrowser = "Unknown"
+	Chrome                   = "Chrome"
+
+	// below browsers not yet supported
+	//Firefox            = "Firefox"
+)
+
 // webdriver client
 type Client struct {
-	serverURL string //URL of the websocket server
-	ws        *websocket.Conn
+	browserType  SupportedBrowser
+	bootstrapURL string // browsers remote debugging port/URL
+	websocketURL string // URL of the websocket server
+	ws           *websocket.Conn
 
 	doneCh chan bool
 
@@ -22,19 +36,38 @@ type Client struct {
 type JSONPayloadHandler func(tracer int64, payload interface{})
 type ReceiveErrorHandler func(tracer int64, err error)
 
-func NewClient(serverURL string, payloadHandler JSONPayloadHandler, errorHandler ReceiveErrorHandler) *Client {
+func NewClient(browserType SupportedBrowser, browserURL string, payloadHandler JSONPayloadHandler, errorHandler ReceiveErrorHandler) *Client {
 	client := Client{
-		serverURL:      serverURL,
+		browserType:    browserType,
 		payloadHandler: payloadHandler,
 		errorHandler:   errorHandler,
+	}
+
+	switch browserType {
+	case Chrome:
+		client.bootstrapURL = browserURL
 	}
 	return &client
 }
 
 func (c *Client) Connect() error {
+	//log.Println(3805270842, util.CurrentFunction())
+
+	switch c.browserType {
+	case Chrome:
+		err := boostrapChrome(c)
+		if err != nil {
+			derr := deeperror.New(1715423597, "boostrapChrome failure:", err)
+			return derr
+		}
+	default:
+		derr := deeperror.New(3625125231, " unknown or unsupported brower:", nil)
+		derr.AddDebugField("c.browserType", c.browserType)
+		return derr
+	}
 
 	var origin = "http://localhost/"
-	ws, err := websocket.Dial(c.serverURL, "", origin)
+	ws, err := websocket.Dial(c.websocketURL, "", origin)
 	if err != nil {
 		derr := deeperror.New(2824034815, " failure:", err)
 		derr.AddDebugField("c", c)
@@ -54,7 +87,12 @@ func (c *Client) Connect() error {
 	return nil
 }
 
+// you can use the cleverly named websocat like so if you need a test server:
+//     websocat -s 9222
 func (c *Client) Listen() {
+
+	log.Println("listening:", c.websocketURL)
+
 	for {
 		select {
 

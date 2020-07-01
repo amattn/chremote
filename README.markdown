@@ -17,7 +17,9 @@ On Mac OS X (make sure you quit the Chrome app first):
 
     open -a "Google Chrome" --args --incognito --remote-debugging-port=9222 http://www.example.com
 
- 
+If the remote debugging port is open, the following command should return something sensible:
+
+    curl -sg http://localhost:9222/json 
 
 
 ## TODO

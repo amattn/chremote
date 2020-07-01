@@ -21,11 +21,7 @@ func main() {
 	log.Printf("Go (runtime:%v) (GOMAXPROCS:%d) (NumCPUs:%d)\n", runtime.Version(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 
 	// things that will eventually be cli flags and/or config variables:
-	//chromeRemoteDebuggingPort := 9222
-
-	browserWebSocketURL := "ws://127.0.0.1:9221/"
-	// you can use the cleverly named websocat like so if you need a test server:
-	//     websocat -s 9222
+	browserBootstrapURL := "http://localhost:9222/json"
 
 	payloadHandler := func(tracer int64, payload interface{}) {
 		log.Println(1675213581, "payloadHandler: incoming payload", tracer, payload)
@@ -34,10 +30,10 @@ func main() {
 		log.Println(9282934429, "errorHandler: unexpected error", tracer, err)
 	}
 
-	client := wdclib.NewClient(browserWebSocketURL, payloadHandler, errorHandler)
+	client := wdclib.NewClient(wdclib.Chrome, browserBootstrapURL, payloadHandler, errorHandler)
 	if client == nil {
 		derr := deeperror.New(4064709656, "unexpected nil client failure", nil)
-		derr.AddDebugField("browserWebSocketURL", browserWebSocketURL)
+		derr.AddDebugField("browserWebSocketURL", browserBootstrapURL)
 		log.Fatal(derr)
 	}
 
@@ -74,7 +70,6 @@ func main() {
 		}
 	}()
 
-	log.Println("listening:", browserWebSocketURL)
 	client.Listen()
 
 }
