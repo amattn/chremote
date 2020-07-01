@@ -23,4 +23,5 @@ On Mac OS X (make sure you quit the Chrome app first):
 ## TODO
 
 - [ ] finish writing this README
+- [ ] using some exponential backoff library, attempt to reconnect if disconnected.
     

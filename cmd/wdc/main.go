@@ -27,7 +27,14 @@ func main() {
 	// you can use the cleverly named websocat like so if you need a test server:
 	//     websocat -s 9222
 
-	client := wdclib.NewClient(browserWebSocketURL)
+	payloadHandler := func(tracer int64, payload interface{}) {
+		log.Println(1675213581, "payloadHandler: incoming payload", tracer, payload)
+	}
+	errorHandler := func(tracer int64, err error) {
+		log.Println(9282934429, "errorHandler: unexpected error", tracer, err)
+	}
+
+	client := wdclib.NewClient(browserWebSocketURL, payloadHandler, errorHandler)
 	if client == nil {
 		derr := deeperror.New(4064709656, "unexpected nil client failure", nil)
 		derr.AddDebugField("browserWebSocketURL", browserWebSocketURL)
@@ -53,5 +60,21 @@ func main() {
 		log.Println(derr)
 		return
 	}
+
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+
+			err = client.SendJSON(thing)
+			if err != nil {
+				derr := deeperror.New(2479404338, "client.SendJson failure:", err)
+				log.Println(derr)
+				return
+			}
+		}
+	}()
+
+	log.Println("listening:", browserWebSocketURL)
+	client.Listen()
 
 }
