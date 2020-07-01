@@ -7,8 +7,8 @@ import (
 
 const (
 	internalIdentifier           = "github.com/amattn/wdc"
-	internalBuildTimestamp int64 = 1593633183
-	internalBuildNumber    int64 = 1
+	internalBuildTimestamp int64 = 1593636227
+	internalBuildNumber    int64 = 2
 	internalVersionString        = "0.0.1"
 )
 
