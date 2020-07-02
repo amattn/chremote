@@ -58,9 +58,10 @@ func (c *Client) Connect() error {
 
 	switch c.browserType {
 	case Chrome:
-		err := boostrapChrome(c)
+		err := BoostrapChrome(c)
 		if err != nil {
-			derr := deeperror.New(1715423597, "boostrapChrome failure:", err)
+			derr := deeperror.New(1715423597, "BoostrapChrome failure:", err)
+			derr.AddDebugField("c", c)
 			return derr
 		}
 	default:

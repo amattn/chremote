@@ -32,7 +32,7 @@ type ChromeWebPagePayload struct {
 	WebSocketDebuggerUrl string `json:"webSocketDebuggerUrl"`
 }
 
-func boostrapChrome(c *Client) error {
+func BoostrapChrome(c *Client) error {
 	//log.Println(2096286590, util.CurrentFunction())
 	httpClient := &http.Client{}
 
@@ -54,6 +54,7 @@ func boostrapChrome(c *Client) error {
 	err = json.Unmarshal(body, &payload)
 	if err != nil {
 		derr := deeperror.New(2378951452, " failure:", err)
+		derr.AddDebugField("c", c)
 		derr.AddDebugField("body", string(body))
 		return derr
 	}
