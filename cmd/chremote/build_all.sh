@@ -3,7 +3,7 @@
 # if one of our commands returns an error, stop execution of this script
 set -o errexit 
 
-COMPONENT="wdc"
+COMPONENT="chremote"
 GO_COMMAND="go"
 # GO_COMMAND="vgo"
 
@@ -27,7 +27,7 @@ echo "************************"
 echo "testing native platform"
 $GO_COMMAND test
 cd ../../internal/util && $GO_COMMAND test
-cd ../../pkg/wdclib && $GO_COMMAND test
+cd ../../pkg/chremotelib && $GO_COMMAND test
 
 
 # I like gox as a cross compilation tool: https://github.com/mitchellh/gox

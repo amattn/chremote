@@ -1,4 +1,4 @@
-module github.com/amattn/wdc
+module github.com/amattn/chremote
 
 go 1.14
 

@@ -6,9 +6,9 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/amattn/chremote/internal/util"
+	"github.com/amattn/chremote/pkg/chremotelib"
 	"github.com/amattn/deeperror"
-	"github.com/amattn/wdc/internal/util"
-	"github.com/amattn/wdc/pkg/wdclib"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 	defer util.Trace(util.CurrentFunction(), time.Now())
 
 	// var err error
-	log.Printf("Starting %v", util.VersionInfo())
+	log.Printf("Starting %v", chremotelib.VersionInfo())
 	log.Printf("os.Args: %v", os.Args)
 	log.Printf("Go (runtime:%v) (GOMAXPROCS:%d) (NumCPUs:%d)\n", runtime.Version(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 
@@ -30,7 +30,7 @@ func main() {
 		log.Println(9282934429, "errorHandler: unexpected error", tracer, err)
 	}
 
-	client := wdclib.NewClient(wdclib.Chrome, browserBootstrapURL, payloadHandler, errorHandler)
+	client := chremotelib.NewClient(chremotelib.Chrome, browserBootstrapURL, payloadHandler, errorHandler)
 	if client == nil {
 		derr := deeperror.New(4064709656, "unexpected nil client failure", nil)
 		derr.AddDebugField("browserWebSocketURL", browserBootstrapURL)
@@ -57,11 +57,22 @@ func main() {
 		return
 	}
 
+	i := 0
 	go func() {
 		for {
+			i++
 			time.Sleep(5 * time.Second)
 
-			err = client.SendJSON(thing)
+			websites := []string{
+				"https://amattn.com/",
+				"https://github.com/amattn",
+				"https://twitter.com/amattn",
+			}
+			idx := i % len(websites)
+			wurl := websites[idx]
+			log.Println("navigate to", i, idx, wurl)
+
+			err := client.NavigateTo(wurl)
 			if err != nil {
 				derr := deeperror.New(2479404338, "client.SendJson failure:", err)
 				log.Println(derr)
@@ -70,6 +81,6 @@ func main() {
 		}
 	}()
 
-	client.Listen()
-
+	err = client.Listen()
+	log.Fatal(2274101116, err)
 }

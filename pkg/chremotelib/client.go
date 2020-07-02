@@ -1,4 +1,4 @@
-package wdclib
+package chremotelib
 
 import (
 	"io"
@@ -9,12 +9,13 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-// the WebDriver spec calls browsers User Agents.
-type SupportedBrowser string
+// the WebDriver spec calls the app (chrome.app, firefox.app, etc.) User Agents.
+// a User Agent will have zero or more active browsers (window or tab)
+type SupportedUserAgents string
 
 const (
-	Unknown SupportedBrowser = "Unknown"
-	Chrome                   = "Chrome"
+	Unknown SupportedUserAgents = "Unknown"
+	Chrome                      = "Chrome"
 
 	// below browsers not yet supported
 	//Firefox            = "Firefox"
@@ -22,7 +23,7 @@ const (
 
 // webdriver client
 type Client struct {
-	browserType  SupportedBrowser
+	browserType  SupportedUserAgents
 	bootstrapURL string // browsers remote debugging port/URL
 	websocketURL string // URL of the websocket server
 	ws           *websocket.Conn
@@ -31,12 +32,14 @@ type Client struct {
 
 	payloadHandler JSONPayloadHandler
 	errorHandler   ReceiveErrorHandler
+
+	sessionID string
 }
 
 type JSONPayloadHandler func(tracer int64, payload interface{})
 type ReceiveErrorHandler func(tracer int64, err error)
 
-func NewClient(browserType SupportedBrowser, browserURL string, payloadHandler JSONPayloadHandler, errorHandler ReceiveErrorHandler) *Client {
+func NewClient(browserType SupportedUserAgents, browserURL string, payloadHandler JSONPayloadHandler, errorHandler ReceiveErrorHandler) *Client {
 	client := Client{
 		browserType:    browserType,
 		payloadHandler: payloadHandler,
@@ -89,7 +92,7 @@ func (c *Client) Connect() error {
 
 // you can use the cleverly named websocat like so if you need a test server:
 //     websocat -s 9222
-func (c *Client) Listen() {
+func (c *Client) Listen() error {
 
 	log.Println("listening:", c.websocketURL)
 
@@ -99,7 +102,7 @@ func (c *Client) Listen() {
 		// time to quit
 		case <-c.doneCh:
 			c.doneCh <- true
-			return
+			return nil
 
 		// read data from websocket connection
 		default:

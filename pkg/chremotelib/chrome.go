@@ -1,4 +1,4 @@
-package wdclib
+package chremotelib
 
 import (
 	"encoding/json"
