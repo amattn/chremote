@@ -10,7 +10,7 @@ set -o errexit
 #    ./version_bump.sh precommit
 #
 
-VERSION_GO_FILEPATH="internal/chremotelib/version.go"
+VERSION_GO_FILEPATH="pkg/chremotelib/version.go"
 #VERSION_GO_FILEPATH="version.go"
 
 usage() {
