@@ -49,6 +49,10 @@ If the remote debugging port is open, the following command should return someth
     curl -sg http://localhost:9222/json 
 
 
+## License
+
+MIT.  See the LICENSE file for the legalese.
+
 ## TODO
 
 - [ ] finish writing this README
