@@ -27,3 +27,22 @@ func (c *Client) NavigateTo(url string) error {
 
 	return nil
 }
+
+// https://chromedevtools.github.io/devtools-protocol/tot/Browser/#method-close
+// Close browser gracefully.
+func (c *Client) Shutdown() error {
+	payload := map[string]interface{}{
+		"method": "Browser.close",
+		"id":     2,
+		"params": map[string]interface{}{},
+	}
+
+	err := c.SendJSON(payload)
+	if err != nil {
+		derr := deeperror.New(2245867873, "Shutdown failure:", err)
+		derr.AddDebugField("payload", payload)
+		return derr
+	}
+
+	return nil
+}
