@@ -7,9 +7,9 @@ import (
 
 const (
 	internalIdentifier           = "github.com/amattn/wdc"
-	internalBuildTimestamp int64 = 1597458969
-	internalBuildNumber    int64 = 13
-	internalVersionString        = "0.1.1"
+	internalBuildTimestamp int64 = 1597459043
+	internalBuildNumber    int64 = 15
+	internalVersionString        = "0.1.2"
 )
 
 func BuildDate() time.Time {
