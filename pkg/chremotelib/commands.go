@@ -28,6 +28,28 @@ func (c *Client) NavigateTo(url string) error {
 	return nil
 }
 
+// https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-reload
+// ignoreCache: if true, browser cache is ignored (as if the user pressed Shift+refresh).
+func (c *Client) PageReload(ignoreCache bool) error {
+	payload := map[string]interface{}{
+		"method": "Page.reload",
+		"id":     2,
+		"params": map[string]interface{}{
+			"ignoreCache": ignoreCache,
+			// there is a second param here, scriptToEvaluateOnLoad, that is currently not implemented in this library
+		},
+	}
+
+	err := c.SendJSON(payload)
+	if err != nil {
+		derr := deeperror.New(2303596588, "NavigateTo failure:", err)
+		derr.AddDebugField("payload", payload)
+		return derr
+	}
+
+	return nil
+}
+
 // https://chromedevtools.github.io/devtools-protocol/tot/Browser/#method-close
 // Close browser gracefully.
 func (c *Client) Shutdown() error {
