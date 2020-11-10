@@ -41,12 +41,12 @@ cd ../../pkg/chremotelib && $GO_COMMAND test
 # the output from go build above, so in the normal case, we just 
 # redirect to a build log
 
-#GOX_BUILD_LOG="gox_build.log"
-#date >> $GOX_BUILD_LOG
-#echo "************************"
-#echo "crosscompiling: gox -osarch=\"darwin/amd64\" -osarch=\"linux/amd64\""
-#if ! gox -osarch="darwin/amd64" -osarch="linux/amd64" >> $GOX_BUILD_LOG 2>&1; then
-#    echo "FAILURE: gox command failed to build for deployment architecture"
-#    echo "check gox_build.log for more info"
-#fi
+GOX_BUILD_LOG="gox_build.log"
+date >> $GOX_BUILD_LOG
+echo "************************"
+echo "crosscompiling: gox -osarch=\"darwin/amd64\" -osarch=\"linux/amd64\" -osarch=\"linux/arm\""
+if ! gox -osarch="darwin/amd64" -osarch="linux/amd64" -osarch="linux/arm" >> $GOX_BUILD_LOG 2>&1; then
+    echo "FAILURE: gox command failed to build for deployment architecture"
+    echo "check gox_build.log for more info"
+fi
 
