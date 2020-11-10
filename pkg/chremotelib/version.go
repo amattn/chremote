@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	internalIdentifier           = "github.com/amattn/wdc"
-	internalBuildTimestamp int64 = 1605038466
-	internalBuildNumber    int64 = 22
-	internalVersionString        = "0.1.3"
+	internalIdentifier           = "github.com/amattn/chremotelib"
+	internalBuildTimestamp int64 = 1605038911
+	internalBuildNumber    int64 = 26
+	internalVersionString        = "0.2.0-a.1"
 )
 
 func BuildDate() time.Time {
