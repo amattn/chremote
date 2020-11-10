@@ -94,3 +94,34 @@ func (c *Client) Shutdown() (uint64, error) {
 
 	return sendJSON(89261776, util.CurrentFunction(), c, payload)
 }
+
+// #######
+// #       #    # #    # #        ##   ##### #  ####  #    #
+// #       ##  ## #    # #       #  #    #   # #    # ##   #
+// #####   # ## # #    # #      #    #   #   # #    # # #  #
+// #       #    # #    # #      ######   #   # #    # #  # #
+// #       #    # #    # #      #    #   #   # #    # #   ##
+// ####### #    #  ####  ###### #    #   #   #  ####  #    #
+//
+
+// https://chromedevtools.github.io/devtools-protocol/tot/Emulation/#method-resetPageScaleFactor
+func (c *Client) EmulationResetPageScaleFactor() (uint64, error) {
+	payload := map[string]interface{}{
+		"method": "Emulation.resetPageScaleFactor",
+		"params": map[string]interface{}{},
+	}
+
+	return sendJSON(63309281, util.CurrentFunction(), c, payload)
+}
+
+// https://chromedevtools.github.io/devtools-protocol/tot/Emulation/#method-setPageScaleFactor
+func (c *Client) EmulationSetPageScaleFactor(factor float32) (uint64, error) {
+	payload := map[string]interface{}{
+		"method": "Emulation.setPageScaleFactor",
+		"params": map[string]interface{}{
+			"pageScaleFactor": factor,
+		},
+	}
+
+	return sendJSON(63309280, util.CurrentFunction(), c, payload)
+}
