@@ -2,6 +2,15 @@ package chremotelib
 
 import "github.com/amattn/deeperror"
 
+// ######
+// #     #   ##    ####  ######
+// #     #  #  #  #    # #
+// ######  #    # #      #####
+// #       ###### #  ### #
+// #       #    # #    # #
+// #       #    #  ####  ######
+//
+
 // chrome remote dev tools spec cna be found here:
 // https://chromedevtools.github.io/devtools-protocol/tot/Page/
 //
@@ -9,18 +18,25 @@ import "github.com/amattn/deeperror"
 // https://w3c.github.io/webdriver/#navigate-to
 
 func (c *Client) NavigateTo(url string) error {
+	return c.NavigateFrameTo(url, "")
+}
+
+func (c *Client) NavigateFrameTo(url string, frameId string) error {
 	payload := map[string]interface{}{
 		"method": "Page.navigate",
-		"id":     2,
 		"params": map[string]interface{}{
 			"url":            url,
 			"transitionType": "typed",
 		},
 	}
 
+	if frameId != "" {
+		payload["frameId"] = frameId
+	}
+
 	err := c.SendJSON(payload)
 	if err != nil {
-		derr := deeperror.New(2303596588, "NavigateTo failure:", err)
+		derr := deeperror.New(884014467, "NavigateToFrame failure:", err)
 		derr.AddDebugField("payload", payload)
 		return derr
 	}
@@ -49,6 +65,15 @@ func (c *Client) PageReload(ignoreCache bool) error {
 
 	return nil
 }
+
+// ######
+// #     # #####   ####  #    #  ####  ###### #####
+// #     # #    # #    # #    # #      #      #    #
+// ######  #    # #    # #    #  ####  #####  #    #
+// #     # #####  #    # # ## #      # #      #####
+// #     # #   #  #    # ##  ## #    # #      #   #
+// ######  #    #  ####  #    #  ####  ###### #    #
+//
 
 // https://chromedevtools.github.io/devtools-protocol/tot/Browser/#method-close
 // Close browser gracefully.
