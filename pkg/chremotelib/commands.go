@@ -1,6 +1,24 @@
 package chremotelib
 
-import "github.com/amattn/deeperror"
+import (
+	"github.com/amattn/chremote/internal/util"
+	"github.com/amattn/deeperror"
+)
+
+// Utility
+
+func sendJSON(debugNum int64, debugMessage string, client *Client, unmarshalledJSONPayload map[string]interface{}) (uint64, error) {
+	id, err := client.SendJSON(unmarshalledJSONPayload)
+	if err != nil {
+		derr := deeperror.New(debugNum, debugMessage, err)
+		derr.AddDebugField("unmarshalledJSONPayload", unmarshalledJSONPayload)
+		derr.AddDebugField("id", id)
+		return id, derr
+	}
+
+	return id, nil
+
+}
 
 // ######
 // #     #   ##    ####  ######
@@ -17,53 +35,44 @@ import "github.com/amattn/deeperror"
 // The commands & terminology here are loosely modeled after the command speced in W3C WebDriver Spec:
 // https://w3c.github.io/webdriver/#navigate-to
 
-func (c *Client) NavigateTo(url string) error {
+func (c *Client) NavigateTo(url string) (uint64, error) {
 	return c.NavigateFrameTo(url, "")
 }
 
-func (c *Client) NavigateFrameTo(url string, frameId string) error {
+func (c *Client) NavigateFrameTo(url string, frameId string) (uint64, error) {
+
 	payload := map[string]interface{}{
 		"method": "Page.navigate",
-		"params": map[string]interface{}{
-			"url":            url,
-			"transitionType": "typed",
-		},
 	}
 
 	if frameId != "" {
-		payload["frameId"] = frameId
+		payload["params"] = map[string]interface{}{
+			"url":            url,
+			"transitionType": "typed",
+		}
+	} else {
+		payload["params"] = map[string]interface{}{
+			"url":            url,
+			"frameId":        frameId,
+			"transitionType": "typed",
+		}
 	}
 
-	err := c.SendJSON(payload)
-	if err != nil {
-		derr := deeperror.New(884014467, "NavigateToFrame failure:", err)
-		derr.AddDebugField("payload", payload)
-		return derr
-	}
-
-	return nil
+	return sendJSON(1464031878, util.CurrentFunction(), c, payload)
 }
 
 // https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-reload
 // ignoreCache: if true, browser cache is ignored (as if the user pressed Shift+refresh).
-func (c *Client) PageReload(ignoreCache bool) error {
+func (c *Client) PageReload(ignoreCache bool) (uint64, error) {
 	payload := map[string]interface{}{
 		"method": "Page.reload",
-		"id":     2,
 		"params": map[string]interface{}{
 			"ignoreCache": ignoreCache,
 			// there is a second param here, scriptToEvaluateOnLoad, that is currently not implemented in this library
 		},
 	}
 
-	err := c.SendJSON(payload)
-	if err != nil {
-		derr := deeperror.New(2303596588, "NavigateTo failure:", err)
-		derr.AddDebugField("payload", payload)
-		return derr
-	}
-
-	return nil
+	return sendJSON(3621462765, util.CurrentFunction(), c, payload)
 }
 
 // ######
@@ -77,19 +86,11 @@ func (c *Client) PageReload(ignoreCache bool) error {
 
 // https://chromedevtools.github.io/devtools-protocol/tot/Browser/#method-close
 // Close browser gracefully.
-func (c *Client) Shutdown() error {
+func (c *Client) Shutdown() (uint64, error) {
 	payload := map[string]interface{}{
 		"method": "Browser.close",
-		"id":     2,
 		"params": map[string]interface{}{},
 	}
 
-	err := c.SendJSON(payload)
-	if err != nil {
-		derr := deeperror.New(2245867873, "Shutdown failure:", err)
-		derr.AddDebugField("payload", payload)
-		return derr
-	}
-
-	return nil
+	return sendJSON(89261776, util.CurrentFunction(), c, payload)
 }

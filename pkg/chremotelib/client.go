@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"sync/atomic"
 
 	"github.com/amattn/deeperror"
 	"golang.org/x/net/websocket"
@@ -128,11 +129,16 @@ func (c *Client) Listen() error {
 	}
 }
 
-func (c *Client) SendJSON(unmarshalledJSONPayload interface{}) error {
+func (c *Client) SendJSON(unmarshalledJSONPayload map[string]interface{}) (uint64, error) {
+
+	// since we are over websockets, we get responses async.  the response matching this request will have the same id
+	uniqueId := generateRequestId()
+	unmarshalledJSONPayload["id"] = uniqueId
+
 	if c.ws == nil {
 		derr := deeperror.New(2354828376, "unexpected nil ws, did you forget to Connect()?", nil)
 		derr.AddDebugField("c", c)
-		return derr
+		return uniqueId, derr
 	}
 
 	err := websocket.JSON.Send(c.ws, unmarshalledJSONPayload)
@@ -140,7 +146,15 @@ func (c *Client) SendJSON(unmarshalledJSONPayload interface{}) error {
 		derr := deeperror.New(4196813969, "websocket.JSON.Send failure:", err)
 		derr.AddDebugField("c", c)
 		derr.AddDebugField("unmarshalledJSONPayload", unmarshalledJSONPayload)
-		return derr
+		return uniqueId, derr
 	}
-	return nil
+	return uniqueId, nil
+}
+
+var internalAtomicIdCounter uint64 // don't use this directly.   call generateRequestId() to get a usable id
+
+// we use an atomic counter.  Other options are random numbers, but the counter works for now.
+func generateRequestId() uint64 {
+	updatedId := atomic.AddUint64(&internalAtomicIdCounter, 1)
+	return updatedId
 }

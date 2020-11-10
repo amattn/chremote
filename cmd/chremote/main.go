@@ -50,9 +50,10 @@ func main() {
 		"数字": 1234,
 	}
 
-	err = client.SendJSON(thing)
+	id, err := client.SendJSON(thing)
 	if err != nil {
 		derr := deeperror.New(2479404338, "client.SendJson failure:", err)
+		derr.AddDebugField("id", id)
 		log.Println(derr)
 		return
 	}
@@ -72,9 +73,10 @@ func main() {
 			wurl := websites[idx]
 			log.Println("navigate to", i, idx, wurl)
 
-			err := client.NavigateTo(wurl)
+			id, err := client.NavigateTo(wurl)
 			if err != nil {
 				derr := deeperror.New(2479404338, "client.SendJson failure:", err)
+				derr.AddDebugField("id", id)
 				log.Println(derr)
 				return
 			}
