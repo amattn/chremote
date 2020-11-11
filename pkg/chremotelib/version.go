@@ -7,9 +7,9 @@ import (
 
 const (
 	internalIdentifier           = "github.com/amattn/chremotelib"
-	internalBuildTimestamp int64 = 1605039630
-	internalBuildNumber    int64 = 31
-	internalVersionString        = "0.2.0-a.2"
+	internalBuildTimestamp int64 = 1605135391
+	internalBuildNumber    int64 = 34
+	internalVersionString        = "0.2.1-a.1"
 )
 
 func BuildDate() time.Time {

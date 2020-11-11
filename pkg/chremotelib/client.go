@@ -132,13 +132,13 @@ func (c *Client) Listen() error {
 func (c *Client) SendJSON(unmarshalledJSONPayload map[string]interface{}) (uint64, error) {
 
 	// since we are over websockets, we get responses async.  the response matching this request will have the same id
-	uniqueId := generateRequestId()
-	unmarshalledJSONPayload["id"] = uniqueId
+	id := generateUniqueId()
+	unmarshalledJSONPayload["id"] = id
 
 	if c.ws == nil {
 		derr := deeperror.New(2354828376, "unexpected nil ws, did you forget to Connect()?", nil)
 		derr.AddDebugField("c", c)
-		return uniqueId, derr
+		return id, derr
 	}
 
 	err := websocket.JSON.Send(c.ws, unmarshalledJSONPayload)
@@ -146,15 +146,15 @@ func (c *Client) SendJSON(unmarshalledJSONPayload map[string]interface{}) (uint6
 		derr := deeperror.New(4196813969, "websocket.JSON.Send failure:", err)
 		derr.AddDebugField("c", c)
 		derr.AddDebugField("unmarshalledJSONPayload", unmarshalledJSONPayload)
-		return uniqueId, derr
+		return id, derr
 	}
-	return uniqueId, nil
+	return id, nil
 }
 
 var internalAtomicIdCounter uint64 // don't use this directly.   call generateRequestId() to get a usable id
 
 // we use an atomic counter.  Other options are random numbers, but the counter works for now.
-func generateRequestId() uint64 {
+func generateUniqueId() uint64 {
 	updatedId := atomic.AddUint64(&internalAtomicIdCounter, 1)
 	return updatedId
 }

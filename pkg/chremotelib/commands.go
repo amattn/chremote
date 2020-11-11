@@ -45,7 +45,7 @@ func (c *Client) NavigateFrameTo(url string, frameId string) (uint64, error) {
 		"method": "Page.navigate",
 	}
 
-	if frameId != "" {
+	if frameId == "" {
 		payload["params"] = map[string]interface{}{
 			"url":            url,
 			"transitionType": "typed",
@@ -120,6 +120,35 @@ func (c *Client) EmulationSetPageScaleFactor(factor float32) (uint64, error) {
 		"method": "Emulation.setPageScaleFactor",
 		"params": map[string]interface{}{
 			"pageScaleFactor": factor,
+		},
+	}
+
+	return sendJSON(63309280, util.CurrentFunction(), c, payload)
+}
+
+// #######
+//    #      ##   #####   ####  ###### #####
+//    #     #  #  #    # #    # #        #
+//    #    #    # #    # #      #####    #
+//    #    ###### #####  #  ### #        #
+//    #    #    # #   #  #    # #        #
+//    #    #    # #    #  ####  ######   #
+//
+
+func (c *Client) TargetGetTargets() (uint64, error) {
+	payload := map[string]interface{}{
+		"method": "Target.getTargets",
+		"params": map[string]interface{}{},
+	}
+
+	return sendJSON(63309280, util.CurrentFunction(), c, payload)
+}
+
+func (c *Client) TargetSetDiscoverTargets(discover bool) (uint64, error) {
+	payload := map[string]interface{}{
+		"method": "Target.setDiscoverTargets",
+		"params": map[string]interface{}{
+			"discover": discover,
 		},
 	}
 

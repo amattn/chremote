@@ -20,6 +20,11 @@ func main() {
 	log.Printf("os.Args: %v", os.Args)
 	log.Printf("Go (runtime:%v) (GOMAXPROCS:%d) (NumCPUs:%d)\n", runtime.Version(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 
+	// you have to launch chrome with the --remote-debugging-port=9222 flag.
+	// on a Mac, run this in the terminal:
+	//
+	//     /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
+
 	// things that will eventually be cli flags and/or config variables:
 	browserBootstrapURL := "http://localhost:9222/json"
 
@@ -53,6 +58,15 @@ func main() {
 	id, err := client.SendJSON(thing)
 	if err != nil {
 		derr := deeperror.New(2479404338, "client.SendJson failure:", err)
+		derr.AddDebugField("id", id)
+		log.Println(derr)
+		return
+	}
+
+	log.Println(1185779168, "getting targets")
+	id, err = client.TargetGetTargets()
+	if err != nil {
+		derr := deeperror.New(2776455187, " failure:", err)
 		derr.AddDebugField("id", id)
 		log.Println(derr)
 		return
