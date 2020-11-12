@@ -29,7 +29,7 @@ func main() {
 	browserBootstrapURL := "http://localhost:9222/json"
 
 	payloadHandler := func(tracer int64, payload interface{}) {
-		log.Printf("1675213580 payload Type: %T", payload)
+		//log.Printf("1675213580 payload Type: %T", payload)
 		log.Println(1675213581, "payloadHandler: incoming payload", tracer, payload)
 	}
 	errorHandler := func(tracer int64, err error) {
@@ -90,11 +90,11 @@ func main() {
 			log.Println("558438353 navigate to", i, idx, wurl)
 
 			responseHandler := func(id uint64, payload map[string]interface{}) {
-				log.Println("`558438355 Request id:", id, "responded with:", payload)
+				log.Println("558438355 Request id:", id, "responded with:", payload)
 			}
 
 			id, err := client.NavigateTo(wurl, responseHandler)
-			log.Println("558438357", "NaviatedTo", id)
+			log.Println(558438357, "Navigated to", id)
 			if err != nil {
 				derr := deeperror.New(2479404338, "client.SendJson failure:", err)
 				derr.AddDebugField("id", id)
