@@ -7,8 +7,6 @@ import (
 	"math/rand"
 	"sync/atomic"
 
-	"github.com/amattn/chremote/internal/util"
-
 	"github.com/amattn/deeperror"
 	"golang.org/x/net/websocket"
 )
@@ -121,27 +119,26 @@ func (c *Client) Listen() error {
 			if c.payloadHandler != nil {
 				go c.payloadHandler(tracer, payload)
 
-				log.Printf("42785403010, %T", payload)
+				//log.Printf("42785403010, %T", payload)
 				// check registered handlers to see if we care about nay of them...
 				// 1. first check to see if we have a map...
 				typedPayload, isExpectedType := payload.(map[string]interface{})
 				if isExpectedType {
 					id, idExists := typedPayload["id"]
-					log.Printf("42785403011, %T", id)
+					//log.Printf("42785403011, %T", id)
 					if idExists {
 						uint64Id, isExpectedUInt64 := id.(uint64)
-						if isExpectedUInt64 {
-							handler := c.registeredHandlers[uint64Id]
-							if handler != nil {
-								go handler(uint64Id, typedPayload)
-							}
-						}
 						float64Id, isExpectedFloat64 := id.(float64)
+
 						if isExpectedFloat64 {
 							uint64Id = uint64(float64Id)
+						}
+
+						if isExpectedUInt64 || uint64Id != 0 {
 							handler := c.registeredHandlers[uint64Id]
 							if handler != nil {
 								go handler(uint64Id, typedPayload)
+								delete(c.registeredHandlers, uint64Id)
 							}
 						}
 					}
@@ -168,15 +165,14 @@ func (c *Client) Listen() error {
 }
 
 func (c *Client) RegisterHandler(id uint64, handler ResponseHandler) {
-	log.Println(2590942173, util.CurrentFunction(), id, handler)
-
+	//log.Println(2590942173, util.CurrentFunction(), id, handler)
 	if handler == nil {
 		return
 	}
 
+	// TODO 1532680991
 	// not thread-safe...  handlers could blow away other handlers...
 	c.registeredHandlers[id] = handler
-
 }
 
 // Send arbitrary JSON.
