@@ -1,10 +1,13 @@
 package chremotelib
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"math/rand"
 	"sync/atomic"
+
+	"github.com/amattn/chremote/internal/util"
 
 	"github.com/amattn/deeperror"
 	"golang.org/x/net/websocket"
@@ -35,16 +38,20 @@ type Client struct {
 	errorHandler   ReceiveErrorHandler
 
 	sessionID string
+
+	registeredHandlers map[uint64]ResponseHandler
 }
 
 type JSONPayloadHandler func(tracer int64, payload interface{})
 type ReceiveErrorHandler func(tracer int64, err error)
+type ResponseHandler func(id uint64, payload map[string]interface{})
 
 func NewClient(browserType SupportedUserAgents, browserURL string, payloadHandler JSONPayloadHandler, errorHandler ReceiveErrorHandler) *Client {
 	client := Client{
-		browserType:    browserType,
-		payloadHandler: payloadHandler,
-		errorHandler:   errorHandler,
+		browserType:        browserType,
+		payloadHandler:     payloadHandler,
+		errorHandler:       errorHandler,
+		registeredHandlers: make(map[uint64]ResponseHandler),
 	}
 
 	switch browserType {
@@ -113,6 +120,37 @@ func (c *Client) Listen() error {
 			err := websocket.JSON.Receive(c.ws, &payload)
 			if c.payloadHandler != nil {
 				go c.payloadHandler(tracer, payload)
+
+				log.Printf("42785403010, %T", payload)
+				// check registered handlers to see if we care about nay of them...
+				// 1. first check to see if we have a map...
+				typedPayload, isExpectedType := payload.(map[string]interface{})
+				if isExpectedType {
+					id, idExists := typedPayload["id"]
+					log.Printf("42785403011, %T", id)
+					if idExists {
+						uint64Id, isExpectedUInt64 := id.(uint64)
+						if isExpectedUInt64 {
+							handler := c.registeredHandlers[uint64Id]
+							if handler != nil {
+								go handler(uint64Id, typedPayload)
+							}
+						}
+						float64Id, isExpectedFloat64 := id.(float64)
+						if isExpectedFloat64 {
+							uint64Id = uint64(float64Id)
+							handler := c.registeredHandlers[uint64Id]
+							if handler != nil {
+								go handler(uint64Id, typedPayload)
+							}
+						}
+					}
+
+				} else {
+					if c.errorHandler != nil {
+						go c.errorHandler(tracer, fmt.Errorf("2599283748 Unknown payload format received over websocket"))
+					}
+				}
 			}
 			if err == io.EOF {
 				// we go disconnected...
@@ -129,10 +167,23 @@ func (c *Client) Listen() error {
 	}
 }
 
-func (c *Client) SendJSON(unmarshalledJSONPayload map[string]interface{}) (uint64, error) {
+func (c *Client) RegisterHandler(id uint64, handler ResponseHandler) {
+	log.Println(2590942173, util.CurrentFunction(), id, handler)
 
-	// since we are over websockets, we get responses async.  the response matching this request will have the same id
-	id := generateUniqueId()
+	if handler == nil {
+		return
+	}
+
+	// not thread-safe...  handlers could blow away other handlers...
+	c.registeredHandlers[id] = handler
+
+}
+
+// Send arbitrary JSON.
+// Chrome will probably complain if you have excessive fields:
+// map[error:map[code:-32600 message:Message has property other than 'id', 'method', 'sessionId', 'params']]
+func (c *Client) SendJSON(id uint64, unmarshalledJSONPayload map[string]interface{}) (uint64, error) {
+
 	unmarshalledJSONPayload["id"] = id
 
 	if c.ws == nil {
@@ -151,7 +202,8 @@ func (c *Client) SendJSON(unmarshalledJSONPayload map[string]interface{}) (uint6
 	return id, nil
 }
 
-var internalAtomicIdCounter uint64 // don't use this directly.   call generateRequestId() to get a usable id
+// don't use this directly.   call generateRequestId() to get a usable id
+var internalAtomicIdCounter uint64
 
 // we use an atomic counter.  Other options are random numbers, but the counter works for now.
 func generateUniqueId() uint64 {

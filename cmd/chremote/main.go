@@ -29,6 +29,7 @@ func main() {
 	browserBootstrapURL := "http://localhost:9222/json"
 
 	payloadHandler := func(tracer int64, payload interface{}) {
+		log.Printf("1675213580 payload Type: %T", payload)
 		log.Println(1675213581, "payloadHandler: incoming payload", tracer, payload)
 	}
 	errorHandler := func(tracer int64, err error) {
@@ -51,11 +52,12 @@ func main() {
 	}
 
 	thing := map[string]interface{}{
+		"id": 987654321,
 		"hi": "world",
 		"数字": 1234,
 	}
 
-	id, err := client.SendJSON(thing)
+	id, err := client.SendJSON(1234567890, thing)
 	if err != nil {
 		derr := deeperror.New(2479404338, "client.SendJson failure:", err)
 		derr.AddDebugField("id", id)
@@ -64,7 +66,7 @@ func main() {
 	}
 
 	log.Println(1185779168, "getting targets")
-	id, err = client.TargetGetTargets()
+	id, err = client.TargetGetTargets(nil)
 	if err != nil {
 		derr := deeperror.New(2776455187, " failure:", err)
 		derr.AddDebugField("id", id)
@@ -85,9 +87,14 @@ func main() {
 			}
 			idx := i % len(websites)
 			wurl := websites[idx]
-			log.Println("navigate to", i, idx, wurl)
+			log.Println("558438353 navigate to", i, idx, wurl)
 
-			id, err := client.NavigateTo(wurl)
+			responseHandler := func(id uint64, payload map[string]interface{}) {
+				log.Println("`558438355 Request id:", id, "responded with:", payload)
+			}
+
+			id, err := client.NavigateTo(wurl, responseHandler)
+			log.Println("558438357", "NaviatedTo", id)
 			if err != nil {
 				derr := deeperror.New(2479404338, "client.SendJson failure:", err)
 				derr.AddDebugField("id", id)
