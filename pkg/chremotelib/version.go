@@ -7,8 +7,8 @@ import (
 
 const (
 	internalIdentifier           = "github.com/amattn/chremotelib"
-	internalBuildTimestamp int64 = 1605223753
-	internalBuildNumber    int64 = 39
+	internalBuildTimestamp int64 = 1606195578
+	internalBuildNumber    int64 = 40
 	internalVersionString        = "0.3.0"
 )
 

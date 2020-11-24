@@ -144,6 +144,17 @@ func (c *Client) EmulationSetPageScaleFactor(factor float32, handler ResponseHan
 //    #    #    # #    #  ####  ######   #
 //
 
+func (c *Client) TargetActivateTarget(targetId string, handler ResponseHandler) (uint64, error) {
+	payload := map[string]interface{}{
+		"method": "Target.activateTarget",
+		"params": map[string]interface{}{
+			"targetId": targetId,
+		},
+	}
+
+	return sendJSON(63309280, util.CurrentFunction(), c, payload, handler)
+}
+
 func (c *Client) TargetGetTargets(handler ResponseHandler) (uint64, error) {
 	payload := map[string]interface{}{
 		"method": "Target.getTargets",
