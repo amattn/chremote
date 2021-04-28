@@ -142,10 +142,11 @@ func (c *Client) Listen() error {
 							}
 						}
 					}
-
 				} else {
+					log.Printf("chremote 2599283748 : isExpectedType == false got %T", payload)
+					log.Printf("chremote 2599283749 : payload %+v", payload)
 					if c.errorHandler != nil {
-						go c.errorHandler(tracer, fmt.Errorf("2599283748 Unknown payload format received over websocket"))
+						go c.errorHandler(tracer, fmt.Errorf("chremote 2599283748 : Unknown payload format received over websocket"))
 					}
 				}
 			}
